@@ -3,5 +3,7 @@
 > Polako, ima vremena, biće...
 
 ## Projekat 💡
+### Šta je za sada učinjeno
+* Postignuta nekakva komunikacija, Bož' sačuvaj...
 
 ## Build & Kompilacija ⚙️

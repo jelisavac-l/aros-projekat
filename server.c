@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <string.h>
 #define MAX 10
+
+// Procedura za fork, jaci od drzave
 
 // Struktura jaca od drzave
 struct mesg_buffer
@@ -10,7 +13,7 @@ struct mesg_buffer
     char mesg_text[100];
 } message;
 
-int main()
+void respond(char *sample)
 {
     key_t key;
     int msgid;
@@ -21,12 +24,22 @@ int main()
     msgid = msgget(key, 0666 | IPC_CREAT);
     message.mesg_type = 1;
 
-    printf("Write Data : ");
-    fgets(message.mesg_text, MAX, stdin);
-
+    if (sample != NULL)
+    {
+        strcpy(message.mesg_text, sample);
+    }
+    else
+    {
+        printf("Argument list is empty, write data: ");
+        fgets(message.mesg_text, MAX, stdin);
+    }
     msgsnd(msgid, &message, sizeof(message), 0);
 
     printf("Data sent is : %s \n", message.mesg_text);
+}
 
+int main(int argc, char **argv)
+{
+    respond(argv[1]);
     return 0;
 }

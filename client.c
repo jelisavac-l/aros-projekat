@@ -19,13 +19,22 @@ int main()
     // msgget kreira msgQ i vraca njen id
     msgid = msgget(key, 0666 | IPC_CREAT);
 
-    // Prijem poruke
-    msgrcv(msgid, &message, sizeof(message), 1, 0);
+    printf("Client is listening...\nPress Ctrl + C to abort.\n---------\n");
 
-    printf("Data Received is : %s \n",
-           message.mesg_text);
+    // Prijem poruke, dok ih ima, jer ako zatvorimo Q pre nego sto
+    // sve procitamo, ode ostatak poruke u zaborav
 
-    // Brisanje otvorenog msgqueueua, staviti ovo u posebnu dat.
+    while (1)
+    {
+        // Hvala onome ko je napravio man
+        if (msgrcv(msgid, &message, sizeof(message), 1, 0) < 0)
+            break;
+
+        printf("Data Received is : %s \n",
+               message.mesg_text);
+    }
+
+    // Sad moze, zatvaranje msgQ -a.
     msgctl(msgid, IPC_RMID, NULL);
 
     return 0;

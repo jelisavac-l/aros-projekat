@@ -2,6 +2,9 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <string.h>
+
+#include "extern/printC.h"
+
 #define MAX 10
 
 // Procedura za fork, jaci od drzave
@@ -34,8 +37,7 @@ void respond(char *sample)
         fgets(message.mesg_text, MAX, stdin);
     }
     msgsnd(msgid, &message, sizeof(message), 0);
-
-    printf("Data sent is : %s \n", message.mesg_text);
+    printf("Data sent is : %s%s%s \n", GRN, message.mesg_text, CRESET);
 }
 
 int main(int argc, char **argv)

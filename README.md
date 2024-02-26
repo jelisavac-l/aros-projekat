@@ -4,6 +4,7 @@
 
 ## Projekat 💡
 ### Šta je za sada učinjeno
+* Ukljucena UI biblioteka, za boje.
 * Postignuta nekakva komunikacija, Bož' sačuvaj...
 
 ## Build & Kompilacija ⚙️

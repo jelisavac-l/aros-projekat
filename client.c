@@ -3,7 +3,10 @@
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+
 #include "extern/printC.h"
+
+#include "uiplusplus.h"
 
 struct mesg_buffer
 {
@@ -13,7 +16,7 @@ struct mesg_buffer
 
 int main()
 {
-
+    print_splash_screen(CLI);
     printf("Client is listening for upcoming messages...\n"
            "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
            "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",

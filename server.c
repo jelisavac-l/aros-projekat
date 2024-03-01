@@ -5,6 +5,8 @@
 
 #include "extern/printC.h"
 
+#include "uiplusplus.h"
+
 #define MAX 10
 
 // Procedura za fork, jaci od drzave
@@ -42,6 +44,8 @@ void respond(char *sample)
 
 int main(int argc, char **argv)
 {
+    //print_splash_screen(SRV);
+
     respond(argv[1]);
     return 0;
 }

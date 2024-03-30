@@ -25,3 +25,16 @@ void print_splash_screen(int proc_type)
         printc(" ░▒▓██████▓▒░░▒▓████████▓▒░▒▓█▓▒░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ ░▒▓█▓▒░ \n\n", YEL);
     }
 }
+
+extern void print_help(int proc_type)
+{
+    if(proc_type == SRV)
+    {
+        printf("Usage: ./server path_to_file\n");
+    }
+    else if(proc_type == CLI)
+    {
+        printc("You are seriously asking for help on a client application, you little bitch?\n"
+                "It still does nothing. Sometimes it accepts some messages. Usually it doesn't.\n", RED);
+    }
+}

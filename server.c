@@ -13,11 +13,13 @@
 #define MAX_LINE_LENGTH 1000
 #define MAX_LINES 1000
 
-struct mesg_buffer
+typedef struct mesg_buffer
 {
     long mesg_type;
     char mesg_text[100];
-} message;
+} MESG_BUFFER;
+
+MESG_BUFFER message;
 
 typedef struct thread_data
 {
@@ -33,10 +35,23 @@ void *listen_thread_routine(void *args)
     printf("Key:\t%s%d%s\n", GRN, listener_data_th->key, COLOR_RESET);
     printf("ID:\t%s%d%s\n", GRN, listener_data_th->id, COLOR_RESET);
     printf("Stop:\t%s%d%s\n", GRN, *listener_data_th->stop, COLOR_RESET);
-    while(1){        
-        if(*listener_data_th->stop) break;
+    // printf("Preparing to listen...");
+
+    //  TODO: Svasta
+
+    while (1)
+    {
+        printf("Type 'f' to terminate loop!\n");
+        if(*listener_data_th->stop) {
+            printf("Terminating!\n");
+            break;
+        }
+
+        /* TODO: Jos vise svasta... */
     }
-    printf("End of routine.\n");
+    
+
+    msgctl(listener_data_th->id, IPC_RMID, NULL);
 }
 
 void listen() {
@@ -57,7 +72,7 @@ void listen() {
     listener_data.key = server_key;
     listener_data.stop = &stop;
     pthread_create(&listener_thread, NULL, listen_thread_routine, (void*)&listener_data);
-    if(getchar()) stop = true;
+    if(getchar() == 'f') *listener_data.stop = true;
     pthread_join(listener_thread, NULL);
     printf("Thread closed.\n");
 

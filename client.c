@@ -8,11 +8,25 @@
 
 #include "uiplusplus.h"
 
+#define SERVER_PATHNAME "server.c"
+#define SERVER_PROJ_ID 69
+
 struct mesg_buffer
 {
     long mesg_type;
     char mesg_text[100];
 } message;
+
+void request()  // TODO: don't create a new message queue if server is down
+{
+    key_t server_key = ftok(SERVER_PATHNAME, SERVER_PROJ_ID);
+    int server_msgid = msgget(server_key, 0666 | IPC_CREAT);
+    message.mesg_type = 1;
+    
+    strcpy(message.mesg_text, "TEST TEST GORAN GORAN");
+    msgsnd(server_msgid, &message, sizeof(message), 0);
+    printc("Request sent!\n", GRN);
+}
 
 void accept()
 {
@@ -77,6 +91,11 @@ int main(int argc, char **argv)
         print_help(CLI);
         printf(COLOR_RESET);
         return 0;
+    }
+
+    else if (!strcmp(argv[1], "-r"))
+    {
+        request();
     }
     printf(COLOR_RESET); // So the cursor doesn't stay colored...
     return 0;

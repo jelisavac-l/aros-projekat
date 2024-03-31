@@ -30,10 +30,12 @@ extern void print_help(int proc_type)
 {
     if(proc_type == SRV)
     {
+        print_splash_screen(proc_type);
         printf("Usage: ./server path_to_file\n");
     }
     else if(proc_type == CLI)
     {
+        print_splash_screen(proc_type);
         printc("You are seriously asking for help on a client application, you little bitch?\n"
                 "It still does nothing. Sometimes it accepts some messages. Usually it doesn't.\n", RED);
     }

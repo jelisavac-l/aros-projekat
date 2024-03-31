@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-
+#include <stdbool.h>
 #include "extern/printC.h"
 
 #include "uiplusplus.h"
@@ -14,14 +14,8 @@ struct mesg_buffer
     char mesg_text[100];
 } message;
 
-int main()
+void accept()
 {
-    print_splash_screen(CLI);
-    printf("Client is listening for upcoming messages...\n"
-           "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
-           "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",
-           RED, BLU, WHT, RED, BLU, WHT, CRESET);
-
     key_t key;
     int msgid;
 
@@ -34,25 +28,56 @@ int main()
     // Prijem poruke, dok ih ima, jer ako zatvorimo Q pre nego sto
     // sve procitamo, ode ostatak poruke u zaborav
 
+
+    bool caught_name = false;
     while (1)
     {
+
+        
 
         // Hvala onome ko je napravio man
         if (msgrcv(msgid, &message, sizeof(message), 1, 0) < 0)
             break;
+
         if (strcmp(message.mesg_text, "END") == 0)
         {
-            printc("End of transmission.\n", YEL);
+            printc("\nEnd of transmission.\n", YEL);
             break;
         }
+        if(!caught_name) 
+        {
+            printf("Receiving a file: %s%s%s\n", YEL, message.mesg_text, COLOR_RESET);
+            caught_name = true;
+            continue;
+        }
 
-        printf("Data Received is : %s \n",
-               message.mesg_text);
+
+        printf("%s", message.mesg_text);
     }
 
     // Sad moze, zatvaranje msgQ -a.
     printf("Closing a message queue with id: %d... ", msgid);
     msgctl(msgid, IPC_RMID, NULL);
     printc("Queue closed.\n", GRN);
+}
+
+int main(int argc, char **argv)
+{
+
+    printf("Client is listening for upcoming messages...\n"
+           "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
+           "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",
+           RED, BLU, WHT, RED, BLU, WHT, CRESET);
+
+    if (argv[1] == NULL)
+        accept();
+
+    else if (!strcmp(argv[1], "--h"))
+    {
+        print_help(CLI);
+        printf(COLOR_RESET);
+        return 0;
+    }
+    printf(COLOR_RESET); // So the cursor doesn't stay colored...
     return 0;
 }

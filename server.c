@@ -3,7 +3,8 @@
 #include <sys/msg.h>
 #include <string.h>
 #include <stdbool.h>
-// #include <libgen.h>
+#include <unistd.h>
+#include <pthread.h>
 #include "extern/printC.h"
 
 #include "uiplusplus.h"
@@ -17,6 +18,50 @@ struct mesg_buffer
     long mesg_type;
     char mesg_text[100];
 } message;
+
+typedef struct thread_data
+{
+    key_t key;
+    int id;
+    bool *stop;
+} THREAD_DATA;
+
+void *listen_thread_routine(void *args)
+{
+    THREAD_DATA *listener_data_th = (THREAD_DATA*)args;
+    printf("Hello from listener thread! Here's all the data I've got:\n");
+    printf("Key:\t%s%d%s\n", GRN, listener_data_th->key, COLOR_RESET);
+    printf("ID:\t%s%d%s\n", GRN, listener_data_th->id, COLOR_RESET);
+    printf("Stop:\t%s%d%s\n", GRN, *listener_data_th->stop, COLOR_RESET);
+    while(1){        
+        if(*listener_data_th->stop) break;
+    }
+    printf("End of routine.\n");
+}
+
+void listen() {
+    
+    key_t server_key;
+    int server_msgid;
+    server_key = ftok("server.c", 69);
+    server_msgid = msgget(server_key, 0666 | IPC_CREAT);
+    bool stop = false;
+
+    // For the listening must be stopped (so msgq can be closed), yet we can't interrupt
+    // while loop, listening shall be executed on another thread,
+    // leaving main thread to wait for interruption signal
+
+    pthread_t listener_thread;
+    THREAD_DATA listener_data;
+    listener_data.id = server_msgid;
+    listener_data.key = server_key;
+    listener_data.stop = &stop;
+    pthread_create(&listener_thread, NULL, listen_thread_routine, (void*)&listener_data);
+    if(getchar()) stop = true;
+    pthread_join(listener_thread, NULL);
+    printf("Thread closed.\n");
+
+}
 
 int respond(char *path, char* target)
 {    
@@ -89,6 +134,7 @@ int respond(char *path, char* target)
     // msgsnd(msgid, &message, sizeof(message), 0);
     // printf("Data sent is : %s%s%s \n", GRN, message.mesg_text, CRESET);
 }
+
 char *get_file_name(char *path) // TODO: To be tested
 {
     int len = strlen(path);
@@ -123,7 +169,11 @@ int main(int argc, char **argv)
         print_help(SRV);
         return 0;
     }
-
+    else if (!strcmp(argv[1], "-l"))
+    {
+        listen();
+        return 0;
+    }
     char* target = get_file_name(argv[1]);
     printf("Requested file for transmission: %s%s%s\n", YEL, target, COLOR_RESET);
     if (respond(argv[1], target))

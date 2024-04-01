@@ -2,3 +2,6 @@ testovi
 pitanja.txt
 dokumentacija/
 *.o
+client
+server
+.vscode

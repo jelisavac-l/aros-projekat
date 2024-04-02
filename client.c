@@ -8,7 +8,7 @@
 
 #include "uiplusplus.h"
 
-#define SERVER_PATHNAME "server.c"
+#define SERVER_PATHNAME "/server"
 #define SERVER_PROJ_ID 69
 
 struct mesg_buffer

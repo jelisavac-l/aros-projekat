@@ -1,10 +1,14 @@
+#define _XOPEN_SOURCE 700   // For new C standards (signals don't work)
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #include "extern/printC.h"
 
 #include "uiplusplus.h"
@@ -12,6 +16,7 @@
 #define MAX 16
 #define MAX_LINE_LENGTH 1000
 #define MAX_LINES 1000
+#define _XOPEN_SOURCE 700
 
 typedef struct mesg_buffer
 {
@@ -20,61 +25,32 @@ typedef struct mesg_buffer
 } MESG_BUFFER;
 
 MESG_BUFFER message;
+bool listen_continue = true;
 
-typedef struct thread_data
+void catch_signal(int signo)
 {
-    key_t key;
-    int id;
-    bool *stop;
-} THREAD_DATA;
-
-void *listen_thread_routine(void *args)
-{
-    THREAD_DATA *listener_data_th = (THREAD_DATA*)args;
-    printf("Hello from listener thread! Here's all the data I've got:\n");
-    printf("Key:\t%s%d%s\n", GRN, listener_data_th->key, COLOR_RESET);
-    printf("ID:\t%s%d%s\n", GRN, listener_data_th->id, COLOR_RESET);
-    printf("Stop:\t%s%d%s\n", GRN, *listener_data_th->stop, COLOR_RESET);
-    // printf("Preparing to listen...");
-
-    //  TODO: Svasta
-
-    while (1)
-    {
-        printf("Type 'f' to terminate loop!\n");
-        if(*listener_data_th->stop) {
-            printf("Terminating!\n");
-            break;
-        }
-
-        /* TODO: Jos vise svasta... */
-    }
-    
-
-    msgctl(listener_data_th->id, IPC_RMID, NULL);
+    printf("Caught signal: %d\n", signo);
+    listen_continue = false;
 }
-
 void listen() {
     
+    struct sigaction sa;
+    sa.sa_handler = &catch_signal;
+    sigaction(SIGINT, &sa, NULL);
+
     key_t server_key;
     int server_msgid;
-    server_key = ftok("server.c", 69);
+    server_key = ftok("/server", 69);
     server_msgid = msgget(server_key, 0666 | IPC_CREAT);
-    bool stop = false;
-
-    // For the listening must be stopped (so msgq can be closed), yet we can't interrupt
-    // while loop, listening shall be executed on another thread,
-    // leaving main thread to wait for interruption signal
-
-    pthread_t listener_thread;
-    THREAD_DATA listener_data;
-    listener_data.id = server_msgid;
-    listener_data.key = server_key;
-    listener_data.stop = &stop;
-    pthread_create(&listener_thread, NULL, listen_thread_routine, (void*)&listener_data);
-    if(getchar() == 'f') *listener_data.stop = true;
-    pthread_join(listener_thread, NULL);
-    printf("Thread closed.\n");
+    printf("Listening for messages on %s%d%s...\n",GRN, server_msgid, COLOR_RESET);
+    while(listen_continue)
+    {
+        if(msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)   continue;
+        
+        printf("Requested: %s\n", message.mesg_text);
+    }
+    msgctl(server_msgid, IPC_RMID, NULL);
+    printf("Server queue closed.\n");
 
 }
 

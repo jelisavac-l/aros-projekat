@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE 700   // For new C standards (signals don't work)
+#define _XOPEN_SOURCE 700 // For new C standards (signals don't work)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,33 +29,36 @@ bool listen_continue = true;
 
 void catch_signal(int signo)
 {
-    printf("Caught signal: %d\n", signo);
+    printf("\nCaught signal: %d\n", signo);
     listen_continue = false;
 }
-void listen() {
-    
+void listen()
+{
+
     struct sigaction sa;
     sa.sa_handler = &catch_signal;
-    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGINT, &sa, NULL);   // SIGINT is Ctrl+C
 
     key_t server_key;
     int server_msgid;
     server_key = ftok("/server", 69);
     server_msgid = msgget(server_key, 0666 | IPC_CREAT);
-    printf("Listening for messages on %s%d%s...\n",GRN, server_msgid, COLOR_RESET);
-    while(listen_continue)
+    printf("Listening for requests on MessageQueue %s%d%s...\n", GRN, server_msgid, COLOR_RESET);
+    printf("You can %ssafely%s stop the server by pressing Ctrl+C\n", GRNB, COLOR_RESET);
+
+    while (listen_continue)
     {
-        if(msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)   continue;
-        
+        if (msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)
+            continue;
+
         printf("Requested: %s\n", message.mesg_text);
     }
     msgctl(server_msgid, IPC_RMID, NULL);
-    printf("Server queue closed.\n");
-
+    printc("Server queue closed safely.\n", GRN);
 }
 
-int respond(char *path, char* target)
-{    
+int respond(char *path, char *target)
+{
 
     char line[MAX_LINE_LENGTH];
     char lines[MAX_LINES][MAX_LINE_LENGTH];
@@ -65,7 +68,7 @@ int respond(char *path, char* target)
     fileptr = fopen(path, "r");
     if (fileptr == NULL)
     {
-        printc("Error: invalid path or nonexistant file!\n", RED);
+        printc("Error: invalid path or nonexistent file!\n", RED);
         return 0;
     }
 
@@ -165,7 +168,7 @@ int main(int argc, char **argv)
         listen();
         return 0;
     }
-    char* target = get_file_name(argv[1]);
+    char *target = get_file_name(argv[1]);
     printf("Requested file for transmission: %s%s%s\n", YEL, target, COLOR_RESET);
     if (respond(argv[1], target))
     {

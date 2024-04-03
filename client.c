@@ -78,10 +78,12 @@ void accept()
 int main(int argc, char **argv)
 {
 
-    printf("Client is listening for upcoming messages...\n"
-           "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
-           "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",
-           RED, BLU, WHT, RED, BLU, WHT, CRESET);
+    // printf("Client is listening for upcoming messages...\n"
+    //        "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
+    //        "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",
+    //        RED, BLU, WHT, RED, BLU, WHT, CRESET);
+
+    // TODO: Catch SIGINT instead of bitching around :(
 
     if (argv[1] == NULL)
         accept();

@@ -21,7 +21,7 @@
 typedef struct mesg_buffer
 {
     long mesg_type;
-    char mesg_text[100];
+    char mesg_text[32];
 } MESG_BUFFER;
 
 MESG_BUFFER message;
@@ -44,14 +44,14 @@ void listen()
     server_key = ftok("/server", 69);
     server_msgid = msgget(server_key, 0666 | IPC_CREAT);
     printf("Listening for requests on MessageQueue %s%d%s...\n", GRN, server_msgid, COLOR_RESET);
-    printf("You can %ssafely%s stop the server by pressing Ctrl+C\n", GRNB, COLOR_RESET);
+    printf("You can %ssafely%s stop the server by pressing Ctrl+C\n\n", BHGRN, COLOR_RESET);
 
     while (listen_continue)
     {
         if (msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)
             continue;
 
-        printf("Requested: %s\n", message.mesg_text);
+        printf("[ %sINCOMING REQUEST%s ] { %s }\n", GRNB, CRESET, message.mesg_text);
     }
     msgctl(server_msgid, IPC_RMID, NULL);
     printc("Server queue closed safely.\n", GRN);

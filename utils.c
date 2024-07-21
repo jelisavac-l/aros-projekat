@@ -51,33 +51,3 @@ void file_assembler(const char* filename, const unsigned char* bytes, size_t siz
         printc("Error: File opening failed!\n",RED);
     }
 }
-
-
-// For testing
-// int main() {
-
-//     // TESTING FILE DISASSEMBLER
-
-//     const char* filename = "db/uhlib.txt";
-//     size_t file_size;
-//     unsigned char* byte_arr = file_disassembler(filename, &file_size);
-
-//     if (byte_arr) {
-//         // Printing the contents of the byte array (for demonstration)
-//         printf("Contents of file %s (%zu bytes):\n", filename, file_size);
-//         for (size_t i = 0; i < file_size; ++i) {
-//             printf("%02X ", byte_arr[i]);
-//         }
-//         printf("\n");
-
-        
-//     }
-
-//     // TESTING FILE ASSEMBLER
-
-//     file_assembler("output.txt", byte_arr, file_size);
-
-//     // DEALLOCATE MEMORY GOSPODE ME BOZE OPROSTI 
-//     free(byte_arr);
-//     return 0;
-// }

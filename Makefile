@@ -12,3 +12,6 @@ libs: extern/printC.c
 
 uipp: uiplusplus.c
 	$(CC) -o uiplusplus.o -c uiplusplus.c
+
+utils: utils.c
+	$(CC) -o utils.o -c utils.c $(LIBS)

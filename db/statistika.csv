@@ -1,0 +1,27 @@
+1?Frekvencije (abs, rel, kum) i grafičko predstavljanje raspodela frekvencija.
+2?Mere centralne tendencije.
+3?Mere varijabiliteta.
+4?Momenti statističkog obeležja.
+5?Pirsonovi koeficijenti obeležja.
+6?Populacija, uzorak, statistike, verodostojnost uzorka.
+7?Sredina uzorka, varijansa uzorka, centralna granična teorema i primene CGT.
+8?Ocene i njihove osobine, nepristrasnost, ocene sa minimalnom varijansom.
+9?Metod maksimalne verodostojnosti, princip invarijantnosti, jednoznačnost rešenja.
+10?Dovoljne statistike, statistički modeli sa dovoljnim statistikama.
+11?Interval poverenja za očekivanu vrednost, nepoznatu varijansu (jednostrani i dvostrani).
+12?Interval poverenja za verovatnoću, koeficijent korelacije.
+13?Testiranje hipoteza, greške I i II vrste, parametarski testovi, proste i složene hipoteze.
+14?Testiranje hipoteza o MO, o jednakosti MO.
+15?Testiranje hipoteza o varijansi, o količniku varijansi.
+16?Testiranje hipoteza o verovatnoći, o koeficijentu korelacije.
+17?Neparametarski testovi, Hi Kvadrat testovi saglasnosti, podobnosti, tabela kontigencije.
+18?Test koraka za jedan uzorak, test koraka za dva uzorka.
+19?Mann-Whitney test.
+20?Test Kolmogorov-Smirnov za 1 uzorak, za 2 uzorka.
+21?Efikasne i asimptotski efikasne ocene.
+22?Model jednofaktorske analize varijanse.
+23?Prosta linearna regresija na osnovu uzorka, pretpostavke prostog LR modela.
+24?Ocena parametra LR modelom najmanjih kvadrata.
+25?Testiranje hipoteze za a i b, regresionog modela Y=aX+b+e i interval poverenja za a i b.
+26?Analiza varijanse u prostom LR modelu, koeficijent determinacije.
+27?Višestruki LRM.

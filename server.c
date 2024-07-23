@@ -32,6 +32,30 @@ void catch_signal(int signo)
     printf("\nCaught signal: %d\n", signo);
     listen_continue = false;
 }
+
+void handle_request(char* request_text)
+{
+    // Separate the MQID from text
+    char *msq_token;
+    char *req_token;
+    char *delimeter = ":";
+    msq_token = strtok(request_text, delimeter);
+    req_token = strtok(NULL, delimeter);
+    printf("[ %sHANDLINIG REQUEST%s ]\t { TO: %s, FILE: %s }\n", BGRN, CRESET, msq_token, req_token);
+
+
+    // Answer the request
+    int client_mq = atoi(msq_token);
+    MESG_BUFFER message;
+    message.mesg_type = 1;
+    strcpy(message.mesg_text, req_token);
+    msgsnd(client_mq, &message, sizeof(message), 0);
+    strcpy(message.mesg_text, "END");
+    msgsnd(client_mq, &message, sizeof(message), 0);
+    printf("[ %sDONE%s ]\t { %s has been served. }\n", BGRN, CRESET, request_text);
+
+}
+
 void listen()
 {
 
@@ -51,7 +75,8 @@ void listen()
         if (msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)
             continue;
 
-        printf("[ %sINCOMING REQUEST%s ] { %s }\n", GRNB, CRESET, message.mesg_text);
+        printf("[ %sINCOMING REQUEST%s ]\t { %s }\n", BGRN, CRESET, message.mesg_text);
+        handle_request(message.mesg_text);
     }
     msgctl(server_msgid, IPC_RMID, NULL);
     printc("Server queue closed safely.\n", GRN);

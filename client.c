@@ -50,10 +50,10 @@ void request() // TODO: don't create a new message queue if server is down
     // Sending request
 
     key_t server_key = ftok(SERVER_PATHNAME, SERVER_PROJ_ID);
-    int server_msgid = msgget(server_key, 0666 | IPC_CREAT);
+    int server_msgid = msgget(server_key, 0666 | IPC_CREAT);    // Mozda i ne treba IPC_CREAT
     message.mesg_type = 1;
 
-    char request_text[32];
+    char request_text[32];  // proveriti duzinu fajla...
     sprintf(request_text, "%d", client_msgid);
     strcat(request_text, ":");
     strcat(request_text, requested_file);
@@ -66,28 +66,28 @@ void request() // TODO: don't create a new message queue if server is down
     // TODO: OVO IMPLEMENTIRATI STO PRE
     // Receiving a response
 
-    // bool caught_name = false;
-    // while (1)
-    // {
+    bool caught_name = false;
+    while (1)
+    {
 
-    //     // Hvala onome ko je napravio man
-    //     if (msgrcv(client_msgid, &message, sizeof(message), 1, 0) < 0)
-    //         break;
+        // Hvala onome ko je napravio man
+        if (msgrcv(client_msgid, &message, sizeof(message), 1, 0) < 0)
+            break;
 
-    //     if (strcmp(message.mesg_text, "END") == 0)
-    //     {
-    //         printc("\nEnd of transmission.\n", YEL);
-    //         break;
-    //     }
-    //     if (!caught_name)
-    //     {
-    //         printf("Receiving a file: %s%s%s\n", YEL, message.mesg_text, COLOR_RESET);
-    //         caught_name = true;
-    //         continue;
-    //     }
+        if (strcmp(message.mesg_text, "END") == 0)
+        {
+            printc("\nEnd of transmission.\n", YEL);
+            break;
+        }
+        if (!caught_name)
+        {
+            printf("Receiving a file: %s%s%s\n", YEL, message.mesg_text, COLOR_RESET);
+            caught_name = true;
+            continue;
+        }
 
-    //     printf("%s", message.mesg_text);
-    // }
+        printf("%s", message.mesg_text);
+    }
 
     // Sad moze, zatvaranje msgQ -a.
     printf("Closing a message queue with id: %d... ", client_msgid);

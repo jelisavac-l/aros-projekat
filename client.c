@@ -86,7 +86,7 @@ void request() // TODO: don't create a new message queue if server is down
             continue;
         }
 
-        printf("%s", message.mesg_text);
+        printf("%02X", message.mesg_text);
     }
 
     // Sad moze, zatvaranje msgQ -a.

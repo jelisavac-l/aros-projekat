@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "extern/printC.h"
-
+#include "utils.h"
 #include "uiplusplus.h"
 
 #define MAX 16
@@ -50,9 +50,32 @@ void handle_request(char* request_text)
     message.mesg_type = 1;
     strcpy(message.mesg_text, req_token);
     msgsnd(client_mq, &message, sizeof(message), 0);
+
+    // TODO: Obraditi SVE greske Boze mi pomozi
+
+    // Create path from requested file
+    char file_path[256];
+    strcpy(file_path, "db/");
+    strcat(file_path, req_token);
+
+    // Find requested file, disassemble it and send it one by one
+    // unsigned char* file_chunks = file_disassembler()
+    size_t file_size;
+    unsigned char* file_chunks = file_disassembler(file_path, &file_size);
+    
+    for (size_t i = 0; i < file_size; ++i) {
+            printf("[%d] SENDING: %02X \n", i, file_chunks[i]);
+            char buffer[4];
+            sprintf(buffer, "%02X", file_chunks[i]);
+            strcpy(message.mesg_text, buffer);
+            msgsnd(client_mq, &message, sizeof(message), 0);
+        }
+
     strcpy(message.mesg_text, "END");
     msgsnd(client_mq, &message, sizeof(message), 0);
-    printf("[ %sDONE%s ]\t { %s has been served. }\n", BGRN, CRESET, request_text);
+    printf("[ %sDONE%s ]\t\t { %s has been served. }\n\n", BGRN, CRESET, request_text);
+
+    free(file_chunks);
 
 }
 

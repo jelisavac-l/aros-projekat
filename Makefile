@@ -2,7 +2,7 @@ CC=gcc
 LIBS=extern/printC.o
 
 server: server.c
-	$(CC) -o server server.c uiplusplus.o $(LIBS)
+	$(CC) -o server server.c uiplusplus.o utils.o $(LIBS)
 
 client: client.c
 	$(CC) -o client client.c uiplusplus.o $(LIBS)

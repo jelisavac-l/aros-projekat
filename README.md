@@ -4,7 +4,7 @@
 
 ## Projekat 💡
 
-Minimalni **file server** (i klijent) za razmenu fajlova među procesima.
+Minimalna file client/server arhitektura za razmenu fajlova među procesima koja demonstrira interprocesnu komunikaciju na UNIX operativnim sistemima upotrebom MessageQueue mehanizma i semafora.
 
 ## Build & Kompilacija ⚙️
 

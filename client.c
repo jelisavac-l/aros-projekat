@@ -63,10 +63,10 @@ void request() // TODO: don't create a new message queue if server is down
     msgsnd(server_msgid, &message, sizeof(message), 0);
     printc("Request sent!\n", GRN);
 
-    // TODO: OVO IMPLEMENTIRATI STO PRE
     // Receiving a response
 
     bool caught_name = false;
+    int file_size = 0;
     while (1)
     {
 
@@ -81,12 +81,20 @@ void request() // TODO: don't create a new message queue if server is down
         }
         if (!caught_name)
         {
-            printf("Receiving a file: %s%s%s\n", YEL, message.mesg_text, COLOR_RESET);
+            char *name;
+            char *size;
+            char *delimeter = ":";
+            name = strtok(message.mesg_text, delimeter);
+            size = strtok(NULL, delimeter);
+            printf("Receiving a file: %s%s%s\n", YEL, name, COLOR_RESET);
+            printf("File size: %s%s bytes%s\n", YEL, size, COLOR_RESET);
             caught_name = true;
             continue;
         }
 
-        printf("%02X", message.mesg_text);
+        // printf("%s", message.mesg_text);
+        // Prihvatati bajt po bajt i ubacivati u niz
+        // Izvuci smisao iz tog niza sa file_assembler i sacuvati fajl
     }
 
     // Sad moze, zatvaranje msgQ -a.

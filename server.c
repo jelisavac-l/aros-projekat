@@ -48,8 +48,6 @@ void handle_request(char* request_text)
     int client_mq = atoi(msq_token);
     MESG_BUFFER message;
     message.mesg_type = 1;
-    strcpy(message.mesg_text, req_token);
-    msgsnd(client_mq, &message, sizeof(message), 0);
 
     // TODO: Obraditi SVE greske Boze mi pomozi
 
@@ -58,13 +56,22 @@ void handle_request(char* request_text)
     strcpy(file_path, "db/");
     strcat(file_path, req_token);
 
-    // Find requested file, disassemble it and send it one by one
-    // unsigned char* file_chunks = file_disassembler()
+    // Find requested file, file size, disassemble it and send it one by one
     size_t file_size;
     unsigned char* file_chunks = file_disassembler(file_path, &file_size);
+
+    char str_file_size[32];
+    sprintf(str_file_size, "%d", file_size);
+
+    char name_size[32];
+    strcpy(name_size, req_token);
+    strcat(name_size, ":");
+    strcat(name_size, str_file_size);
+    strcpy(message.mesg_text, name_size);
+    msgsnd(client_mq, &message, sizeof(message), 0);
     
     for (size_t i = 0; i < file_size; ++i) {
-            printf("[%d] SENDING: %02X \n", i, file_chunks[i]);
+            // printf("[%d] SENDING: %02X \n", i, file_chunks[i]);
             char buffer[4];
             sprintf(buffer, "%02X", file_chunks[i]);
             strcpy(message.mesg_text, buffer);

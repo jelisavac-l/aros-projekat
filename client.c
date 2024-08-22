@@ -7,6 +7,7 @@
 #include "extern/printC.h"
 
 #include "uiplusplus.h"
+#include "utils.h"
 
 #define SERVER_PATHNAME "/server"
 #define SERVER_PROJ_ID 69
@@ -23,6 +24,33 @@ struct mesg_buffer
     long mesg_type;
     char mesg_text[32];
 } message;
+
+unsigned char hex_to_byte(char* hex) {
+
+    // NEGDE PISE MALA SLOVA NEGDE VELIKA JA 
+    // NE UMEM DA OBJASNIM ZASTO PA EVO OVAKO :(
+
+    // PRVI
+    int value = 0;
+    if (hex[0] >= '0' && hex[0] <= '9') {
+        value += (hex[0] - '0') * 16;
+    } else if (hex[0] >= 'A' && hex[0] <= 'F') {
+        value += (hex[0] - 'A' + 10) * 16;
+    } else if (hex[0] >= 'a' && hex[0] <= 'f') {
+        value += (hex[0] - 'a' + 10) * 16;
+    }
+
+    // DRUGI
+    if (hex[1] >= '0' && hex[1] <= '9') {
+        value += (hex[1] - '0');
+    } else if (hex[1] >= 'A' && hex[1] <= 'F') {
+        value += (hex[1] - 'A' + 10);
+    } else if (hex[1] >= 'a' && hex[1] <= 'f') {
+        value += (hex[1] - 'a' + 10);
+    }
+
+    return (unsigned char) value;
+}
 
 void request() // TODO: don't create a new message queue if server is down
 {
@@ -66,7 +94,9 @@ void request() // TODO: don't create a new message queue if server is down
     // Receiving a response
 
     bool caught_name = false;
-    int file_size = 0;
+    size_t file_size = 0;
+    size_t byte_counter = 0;
+    unsigned char* file_chunks;
     while (1)
     {
 
@@ -77,6 +107,14 @@ void request() // TODO: don't create a new message queue if server is down
         if (strcmp(message.mesg_text, "END") == 0)
         {
             printc("\nEnd of transmission.\n", YEL);
+            // Obrisati ovo ispod
+            printf("Total bytes counted: %d\n", byte_counter);
+            // Intervencija vise sile je izdejstvovala da ovo iz 
+            // prve upali kako treba...
+
+            file_assembler("enis.txt", file_chunks, file_size);
+
+            byte_counter = 0;
             break;
         }
         if (!caught_name)
@@ -86,18 +124,25 @@ void request() // TODO: don't create a new message queue if server is down
             char *delimeter = ":";
             name = strtok(message.mesg_text, delimeter);
             size = strtok(NULL, delimeter);
+            file_size = atoi(size);
             printf("Receiving a file: %s%s%s\n", YEL, name, COLOR_RESET);
             printf("File size: %s%s bytes%s\n", YEL, size, COLOR_RESET);
+            // .. -> !
+            file_chunks = (unsigned char*)malloc(file_size);
             caught_name = true;
             continue;
         }
+        // printf("%s\n", message.mesg_text);
+        file_chunks[byte_counter] = hex_to_byte(message.mesg_text);
+        byte_counter++;
 
-        // printf("%s", message.mesg_text);
-        // Prihvatati bajt po bajt i ubacivati u niz
-        // Izvuci smisao iz tog niza sa file_assembler i sacuvati fajl
     }
 
     // Sad moze, zatvaranje msgQ -a.
+
+    
+
+    free(file_chunks);
     printf("Closing a message queue with id: %d... ", client_msgid);
     msgctl(client_msgid, IPC_RMID, NULL);
     printc("Queue closed.\n", GRN);

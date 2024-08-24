@@ -112,15 +112,15 @@ void request() // TODO: don't create a new message queue if server is down
             // Intervencija vise sile je izdejstvovala da ovo iz 
             // prve upali kako treba...
 
-            file_assembler("enis.txt", file_chunks, file_size);
+            file_assembler(requested_file, file_chunks, file_size);
 
             byte_counter = 0;
             break;
         }
         if (!caught_name)
         {
-            char *name;
             char *size;
+            char *name;
             char *delimeter = ":";
             name = strtok(message.mesg_text, delimeter);
             size = strtok(NULL, delimeter);
@@ -138,10 +138,6 @@ void request() // TODO: don't create a new message queue if server is down
 
     }
 
-    // Sad moze, zatvaranje msgQ -a.
-
-    
-
     free(file_chunks);
     printf("Closing a message queue with id: %d... ", client_msgid);
     msgctl(client_msgid, IPC_RMID, NULL);
@@ -152,13 +148,7 @@ void request() // TODO: don't create a new message queue if server is down
 
 int main(int argc, char **argv)
 {
-
-    // printf("Client is listening for upcoming messages...\n"
-    //        "DON'T Press Ctrl + C to abort. (MessageQueue won't close)\n"
-    //        "%s-----%s-----%s-----%s-----%s-----%s-----%s\n",
-    //        RED, BLU, WHT, RED, BLU, WHT, CRESET);
-
-    // TODO: Catch SIGINT instead of bitching around :(
+    // TODO: Catch SIGINT 
 
     if (argv[1] == NULL)
         return 1;

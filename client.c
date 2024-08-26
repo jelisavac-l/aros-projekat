@@ -5,16 +5,13 @@
 #include <sys/msg.h>
 #include <stdbool.h>
 #include "extern/printC.h"
-
+#include <semaphore.h>
 #include "uiplusplus.h"
 #include "utils.h"
 
 #define SERVER_PATHNAME "/server"
 #define SERVER_PROJ_ID 69
 
-/*
-    OSIGURATI NA NEKI NACIN DA SE KREIRAJU JEDINSTVENE VREDNOSTI ZA SVAKOG KLIJENTA
-*/
 
 #define CLIENT_PATHNAME "/home/luka/"
 #define CLIENT_PROJ_ID 'C'
@@ -27,10 +24,6 @@ struct mesg_buffer
 
 unsigned char hex_to_byte(char* hex) {
 
-    // NEGDE PISE MALA SLOVA NEGDE VELIKA JA 
-    // NE UMEM DA OBJASNIM ZASTO PA EVO OVAKO :(
-
-    // PRVI
     int value = 0;
     if (hex[0] >= '0' && hex[0] <= '9') {
         value += (hex[0] - '0') * 16;
@@ -40,7 +33,6 @@ unsigned char hex_to_byte(char* hex) {
         value += (hex[0] - 'a' + 10) * 16;
     }
 
-    // DRUGI
     if (hex[1] >= '0' && hex[1] <= '9') {
         value += (hex[1] - '0');
     } else if (hex[1] >= 'A' && hex[1] <= 'F') {
@@ -52,7 +44,7 @@ unsigned char hex_to_byte(char* hex) {
     return (unsigned char) value;
 }
 
-void request() // TODO: don't create a new message queue if server is down
+void request()
 {
     char requested_file[32];
     printf("%sEnter a name of a file you wish to get from the server:%s ", YEL, CRESET);
@@ -66,7 +58,6 @@ void request() // TODO: don't create a new message queue if server is down
     int client_msgid;
     client_key = ftok(CLIENT_PATHNAME, CLIENT_PROJ_ID);
 
-    // ZNACI MRTVI IPC_CREAT ZALI BOZE 3 SATA DEBAGOVANJA
     client_msgid = msgget(client_key, 0666 | IPC_EXCL | IPC_CREAT);
     if(client_msgid == -1) 
     {
@@ -107,13 +98,7 @@ void request() // TODO: don't create a new message queue if server is down
         if (strcmp(message.mesg_text, "END") == 0)
         {
             printc("\nEnd of transmission.\n", YEL);
-            // Obrisati ovo ispod
-            printf("Total bytes counted: %d\n", byte_counter);
-            // Intervencija vise sile je izdejstvovala da ovo iz 
-            // prve upali kako treba...
-
             file_assembler(requested_file, file_chunks, file_size);
-
             byte_counter = 0;
             break;
         }
@@ -135,7 +120,6 @@ void request() // TODO: don't create a new message queue if server is down
             file_size = atoi(size);
             printf("Receiving a file: %s%s%s\n", YEL, name, COLOR_RESET);
             printf("File size: %s%s bytes%s\n", YEL, size, COLOR_RESET);
-            // .. -> !
             file_chunks = (unsigned char*)malloc(file_size);
             caught_name = true;
             continue;
@@ -156,7 +140,6 @@ void request() // TODO: don't create a new message queue if server is down
 
 int main(int argc, char **argv)
 {
-    // TODO: Catch SIGINT 
 
     if (argv[1] == NULL)
         return 1;
@@ -172,6 +155,6 @@ int main(int argc, char **argv)
     {
         request();
     }
-    printf(COLOR_RESET); // So the cursor doesn't stay colored...
+    printf(COLOR_RESET);
     return 0;
 }

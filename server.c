@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <signal.h>
+#include <semaphore.h>
 #include "extern/printC.h"
 #include "utils.h"
 #include "uiplusplus.h"
@@ -17,6 +18,8 @@
 #define MAX_LINE_LENGTH 1000
 #define MAX_LINES 1000
 #define _XOPEN_SOURCE 700
+
+sem_t mutex;
 
 typedef struct mesg_buffer
 {
@@ -43,7 +46,6 @@ void handle_request(char* request_text)
     req_token = strtok(NULL, delimeter);
     printf("[ %sHANDLINIG REQUEST%s ]\t { TO: %s, FILE: %s }\n", BGRN, CRESET, msq_token, req_token);
 
-
     // Answer the request
     int client_mq = atoi(msq_token);
     MESG_BUFFER message;
@@ -56,10 +58,14 @@ void handle_request(char* request_text)
     strcpy(file_path, "db/");
     strcat(file_path, req_token);
 
+    sem_wait(&mutex);
+
     // Find requested file, file size, disassemble it and send it one by one
     size_t file_size;
     unsigned char* file_chunks = file_disassembler(file_path, &file_size);
     
+    sem_post(&mutex);
+
     // File opening error
     if(file_chunks == NULL) {
         strcpy(message.mesg_text, "404");
@@ -150,10 +156,6 @@ int respond(char *path, char *target)
 
     fclose(fileptr);
 
-    // Following lines must not be executed before file-error checks!
-    // Otherwise, the error will occur, but message queue won't be closed!
-    // Found out the hard way :(
-
     key_t key;
     int msgid;
     key = ftok("progfile", 65);
@@ -181,17 +183,6 @@ int respond(char *path, char *target)
 
     return line_counter;
 
-    // if (sample != NULL)
-    // {
-    //     strcpy(message.mesg_text, sample);
-    // }
-    // else
-    // {
-    //     printf("Argument list is empty, write data: ");
-    //     fgets(message.mesg_text, MAX, stdin);
-    // }
-    // msgsnd(msgid, &message, sizeof(message), 0);
-    // printf("Data sent is : %s%s%s \n", GRN, message.mesg_text, CRESET);
 }
 
 char *get_file_name(char *path) // TODO: To be tested
@@ -214,7 +205,8 @@ char *get_file_name(char *path) // TODO: To be tested
 int main(int argc, char **argv)
 {
 
-    // Drzi vodu (segfault)
+    sem_init(&mutex, 0, 1);
+
     if (argv[1] == NULL)
     {
         printc("Error: no path provided! This could have resulted in Segmentation fault!\n", RED);
@@ -245,5 +237,6 @@ int main(int argc, char **argv)
     }
 
     printf(COLOR_RESET); // So the cursor doesn't stay colored...
+    sem_destroy(&mutex);
     return 0;
 }

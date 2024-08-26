@@ -38,9 +38,3 @@ Ključne funkcionalnosti ovog projekta zavise od POSIX biblioteka za programski 
 ### Gašenje
 1. U terminalu u kome se server izvršava, proslediti interrupt signal pritiskom `Ctrl + C`
 2. Proveriti da li su svi MessageQueue-ovi ovog projekta ugašeni naredbom `ipcs` i u slučaju da je došlo do greške i neki nije ispravno zatvoren, ručno ga zatvoriti naredbom `ipcrm`.
-
-## Poznate greške ⚠️
-> Koje trebaju biti ispravljene (ili vešto sakrivene) pre odbrane
-* Zahtevanje nepostojećeg fajla rezultira u segfault-u. Neophodno je ručno zatvaranje MQ-ova.
-* Pokretanje klijenta pre servera pravi opšti haos oko kreiranja serverskog MQ-a.
-* "Nasilno" gašenje klijenta pre završetka komunikacije može da zakoči server.

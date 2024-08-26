@@ -5,6 +5,7 @@
 
 // Function that breaks up a file into an array of bytes
 unsigned char* file_disassembler(const char* path, size_t* size) {
+    
     FILE* file = fopen(path, "rb");
     if (!file) {
         //printc("Error: File opening failed!", RED);

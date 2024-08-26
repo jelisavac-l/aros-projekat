@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <semaphore.h>
+#include <sys/ipc.h>
 #include "extern/printC.h"
 
 void file_assembler(const char* filename, const unsigned char* bytes, size_t size);

@@ -119,6 +119,14 @@ void request() // TODO: don't create a new message queue if server is down
         }
         if (!caught_name)
         {
+            if(strcmp(message.mesg_text, "404") == 0)
+            {
+                printc("Error 404: File not found.\n", BRED);
+                printf("Closing a message queue with id: %d... ", client_msgid);
+                msgctl(client_msgid, IPC_RMID, NULL);
+                printc("Queue closed.\n", GRN);
+                return;
+            }
             char *size;
             char *name;
             char *delimeter = ":";
@@ -138,7 +146,7 @@ void request() // TODO: don't create a new message queue if server is down
 
     }
 
-    free(file_chunks);
+    free(file_chunks);  // Ovo da se zaobidje ako ne uspe prenos... NE OSLOBADJATI NULL POINTER!
     printf("Closing a message queue with id: %d... ", client_msgid);
     msgctl(client_msgid, IPC_RMID, NULL);
     printc("Queue closed.\n", GRN);

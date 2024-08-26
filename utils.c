@@ -7,7 +7,7 @@
 unsigned char* file_disassembler(const char* path, size_t* size) {
     FILE* file = fopen(path, "rb");
     if (!file) {
-        printc("Error: File opening failed!", RED);
+        //printc("Error: File opening failed!", RED);
         return NULL;
     }
 
@@ -20,7 +20,7 @@ unsigned char* file_disassembler(const char* path, size_t* size) {
     unsigned char* buffer = (unsigned char*)malloc(file_size);
     if (!buffer) {
         fclose(file);
-        printc("Error: Memory allocation failed!", RED);
+        //printc("Error: Memory allocation failed!", RED);
         return NULL;
     }
 
@@ -29,7 +29,7 @@ unsigned char* file_disassembler(const char* path, size_t* size) {
     if (bytes_read != file_size) {
         fclose(file);
         free(buffer);
-        printc("Error: Reading failed!", RED);
+        //printc("Error: Reading failed!", RED);
         return NULL;
     }
 
@@ -46,8 +46,8 @@ void file_assembler(const char* filename, const unsigned char* bytes, size_t siz
     if (file != NULL) {
         fwrite(bytes, sizeof(unsigned char), size, file); // Write bytes to file
         fclose(file);
-        printf("Bytes have been written to %s\n", filename);
+        //printf("Bytes have been written to %s\n", filename);
     } else {
-        printc("Error: File opening failed!\n",RED);
+        //printc("Error: File opening failed!\n",RED);
     }
 }

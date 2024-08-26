@@ -59,6 +59,16 @@ void handle_request(char* request_text)
     // Find requested file, file size, disassemble it and send it one by one
     size_t file_size;
     unsigned char* file_chunks = file_disassembler(file_path, &file_size);
+    
+    // File opening error
+    if(file_chunks == NULL) {
+        strcpy(message.mesg_text, "404");
+        msgsnd(client_mq, &message, sizeof(message), 0);
+        strcpy(message.mesg_text, "END");
+        msgsnd(client_mq, &message, sizeof(message), 0);
+        printf("[ %s INVALID REQUEST %s ]\t File not found or reading has failed.\n\n", BRED, CRESET);
+        return;
+    }
 
     char str_file_size[32];
     sprintf(str_file_size, "%d", file_size);

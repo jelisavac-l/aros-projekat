@@ -10,6 +10,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <semaphore.h>
+#include <fcntl.h>
 #include "extern/printC.h"
 #include "utils.h"
 #include "uiplusplus.h"
@@ -18,8 +19,9 @@
 #define MAX_LINE_LENGTH 1000
 #define MAX_LINES 1000
 #define _XOPEN_SOURCE 700
+#define SEM_NAME "/jaki_semafor"
 
-sem_t mutex;
+sem_t* mutex;
 
 typedef struct mesg_buffer
 {
@@ -58,13 +60,9 @@ void handle_request(char* request_text)
     strcpy(file_path, "db/");
     strcat(file_path, req_token);
 
-    sem_wait(&mutex);
-
     // Find requested file, file size, disassemble it and send it one by one
     size_t file_size;
     unsigned char* file_chunks = file_disassembler(file_path, &file_size);
-    
-    sem_post(&mutex);
 
     // File opening error
     if(file_chunks == NULL) {
@@ -72,7 +70,7 @@ void handle_request(char* request_text)
         msgsnd(client_mq, &message, sizeof(message), 0);
         strcpy(message.mesg_text, "END");
         msgsnd(client_mq, &message, sizeof(message), 0);
-        printf("[ %s INVALID REQUEST %s ]\t File not found or reading has failed.\n\n", BRED, CRESET);
+        printf("[%s INVALID REQUEST %s ]\t File not found or reading has failed.\n\n", BRED, CRESET);
         return;
     }
 
@@ -121,8 +119,10 @@ void listen()
         if (msgrcv(server_msgid, &message, sizeof(message), 0, IPC_NOWAIT) < 0)
             continue;
 
-        printf("[ %sINCOMING REQUEST%s ]\t { %s }\n", BGRN, CRESET, message.mesg_text);
+        printf("[ %sINCOMING REQUEST%s ]\t { %s } 🚥\n", BGRN, CRESET, message.mesg_text);
+        sem_wait(mutex);
         handle_request(message.mesg_text);
+        sem_post(mutex);
     }
     msgctl(server_msgid, IPC_RMID, NULL);
     printc("Server queue closed safely.\n", GRN);
@@ -205,7 +205,14 @@ char *get_file_name(char *path) // TODO: To be tested
 int main(int argc, char **argv)
 {
 
-    sem_init(&mutex, 0, 1);
+    mutex = sem_open(SEM_NAME, O_CREAT, S_IRUSR | S_IWUSR, 1);
+
+    if(mutex == SEM_FAILED) {
+        printc("Fatal error: Failed to link a semaphore. Exiting...", BRED);
+        exit(EXIT_FAILURE);
+    } else {
+        printc("Semaphore linked successfully.\n", BGRN);
+    }
 
     if (argv[1] == NULL)
     {
@@ -237,6 +244,9 @@ int main(int argc, char **argv)
     }
 
     printf(COLOR_RESET); // So the cursor doesn't stay colored...
-    sem_destroy(&mutex);
+
+    sem_close(mutex);
+    sem_unlink(SEM_NAME);
+
     return 0;
 }

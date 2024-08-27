@@ -4,17 +4,24 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <stdbool.h>
-#include "extern/printC.h"
+#include <fcntl.h>
 #include <semaphore.h>
+#include <unistd.h>
+#include "extern/printC.h"
 #include "uiplusplus.h"
 #include "utils.h"
+#include <sys/stat.h>
+#include <linux/stat.h>
 
 #define SERVER_PATHNAME "/server"
 #define SERVER_PROJ_ID 69
 
+#define SEM_NAME "/jaki_semafor"
 
 #define CLIENT_PATHNAME "/home/luka/"
 #define CLIENT_PROJ_ID 'C'
+
+sem_t* mutex;
 
 struct mesg_buffer
 {
@@ -78,8 +85,12 @@ void request()
     strcat(request_text, requested_file);
 
     strcpy(message.mesg_text, request_text);
-
+    
+    printf("In queue...\n");
+    sem_wait(mutex);
+    printf("Sending request...\n");
     msgsnd(server_msgid, &message, sizeof(message), 0);
+    sem_post(mutex);
     printc("Request sent!\n", GRN);
 
     // Receiving a response
@@ -141,6 +152,15 @@ void request()
 int main(int argc, char **argv)
 {
 
+    mutex = sem_open(SEM_NAME, O_EXCL, S_IRUSR | S_IWUSR, 1);   // Ajao elegantno
+
+    if(mutex == SEM_FAILED) {
+        printc("Fatal error: Failed to link a semaphore. Exiting...", BRED);
+        exit(EXIT_FAILURE);
+    } else {
+        printc("Semaphore linked successfully.\n", BGRN);
+    }
+
     if (argv[1] == NULL)
         return 1;
 
@@ -156,5 +176,7 @@ int main(int argc, char **argv)
         request();
     }
     printf(COLOR_RESET);
+    sem_close(mutex);
+
     return 0;
 }
